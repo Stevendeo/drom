@@ -77,6 +77,7 @@ and dummy_package =
     p_skip = None;
     p_optional = None ;
     p_preprocess = None ;
+    p_modules_wout_impl = []
   }
 
 let create_package ~name ~dir ~kind = { dummy_package with name; dir; kind }
@@ -274,6 +275,16 @@ let stringSet_encoding =
 
 let fields_encoding = EzToml.ENCODING.stringMap EzToml.string_encoding
 
+let modules_wout_impl_encoding =
+  EzToml.encoding
+    ~to_toml:(fun l -> TArray (NodeString l))
+    ~of_toml:(fun ~key l ->
+        match l with
+        | TArray NodeEmpty -> []
+        | TArray (NodeString l) -> l
+        | _ -> EzToml.expecting_type "string list" key
+      )
+
 let find_author config =
   match config.config_author with
   | Some author -> author
@@ -361,6 +372,11 @@ let string_of_package pk =
           ]
         ~default: {|preprocess = "pps ppx_deriving_encoding"|}
         ( string_option pk.p_preprocess );
+
+      option "modules_without_implementation"
+        ~comment:[".mli files without associated .ml file"]
+        ~default:"modules_without_implementation=[]"
+        (string_list pk.p_modules_wout_impl);
 
       option "skip"
         ~comment: [ "files to skip while updating at package level" ]
@@ -483,6 +499,15 @@ let package_of_toml ?default ?p_file table =
     EzToml.get_encoding_option skip_encoding table [ "skip" ]
       ?default:default.p_skip
   in
+  let p_modules_wout_impl =
+    match
+      EzToml.get_encoding_option modules_wout_impl_encoding
+        table [ "modules_without_implementation" ]
+        ~default:default.p_modules_wout_impl
+    with
+    | None -> []
+    | Some l -> l
+  in
 
   { name;
     dir;
@@ -504,6 +529,7 @@ let package_of_toml ?default ?p_file table =
     p_generators;
     p_skip;
     p_optional;
+    p_modules_wout_impl;
   }
 
 let package_of_toml ?default table =

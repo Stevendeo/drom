@@ -55,6 +55,7 @@ type package =
     mutable p_skip : string list option ;
     mutable p_optional : bool option ;
     mutable p_preprocess : string option ;
+    mutable p_modules_wout_impl : string list ;
   }
 
 and project =
