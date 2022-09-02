@@ -1,6 +1,6 @@
 # Keep this file in your GIT repo to help drom track generated files
 # begin version
-version:0.6.0
+version:0.6.1
 # end version
 
 # hash of toml configuration files

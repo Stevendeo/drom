@@ -401,3 +401,6 @@ let infimum : default:string -> ?current:string -> bottom:string -> version list
         else
           loop false default others in
     loop false bottom versions
+
+let pp_str_list ~sep b l =
+  List.iter (fun s -> Printf.bprintf b "%s%s" sep s) l

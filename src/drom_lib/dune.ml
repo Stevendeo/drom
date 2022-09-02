@@ -20,6 +20,16 @@ We end up adding '(formatting (enabled_for ocaml reason))' to dune-project
 to completely disable formatting of dune files.
 *)
 
+
+
+let add_modules_wout_impl b pkg =
+  match pkg.p_modules_wout_impl with
+  | [] -> ()
+  | l ->
+      Printf.bprintf b "(modules_without_implementation";
+      Misc.pp_str_list ~sep:" " b l;
+      Printf.bprintf b ")"
+
 let package_dune_files package =
   let b = Buffer.create 1000 in
   let p_generators =
@@ -103,7 +113,6 @@ let packages p =
 |}
       package.name (Misc.p_synopsis package)
       (Misc.p_description package);
-
     let depend_of_dep (name, d) =
       match d.depversions with
       | [] -> Printf.bprintf b "   %s\n" name
